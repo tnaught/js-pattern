@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    <p>messageSender:</p>
+    <div id="messageSender"></div>
+    <p>messagePreview:</p>
+    <div id="messagePreview"></div>
+    <p>newMessageCounter</p>
+    <div id="newMessageCounter"></div>
+    <script type="text/javascript" src="publish.js"></script>
+    <script type="text/javascript">
+        //特别像自然语言，不过subscribe/publish/unsubscribe是怎么实现的呢
+        //接收到的消息数量
+        var mailCounter = 0;
+
+        //初始化订阅，名称是inbox/newMessage
+        //呈现消息预览
+        var subscriberl = pubsub.subscribe('inbox/newMessage', function(topic, data) {
+            //debug模式记录topic
+            console.log('a new message was received:', topic);
+
+            //使用从目标subject传递过来的data，一般呈现消息预览
+            document.getElementById('messageSender').innerHTML = data.sender;
+            document.getElementById('messagePreview').innerHTML = data.body;
+            mailCounter++;
+        })
+
+        //另外一个订阅，使用同样的data数据用于不同的任务
+        //通过发布者更新所接收消息的数量
+        var subscribe2 = pubsub.subscribe('inbox/mailCounter', function(topic, data) {
+            console.log('newMessageCounter', mailCounter)
+            document.getElementById('newMessageCounter').innerHTML = mailCounter;
+        })
+
+        pubsub.publish('inbox/newMessage', {
+            sender: 'hello@google.com',
+            body: 'hey there!how are you doing today?'
+        })
+        pubsub.publish('inbox/mailCounter')
+        //pubsub.unsubscribe(subscriber1)
+        //pubsub.unsubscribe(subscriber2)
+    </script>
+</body>
+</html>

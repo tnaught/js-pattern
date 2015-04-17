@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    <button id="addNewObserver">Add new observer checkbox</button>
+    <input id="mainCheckbox" type="checkbox">
+    <div id="observersContainer">
+        
+    </div>
+<script type="text/javascript" src="observer.js"></script>
+<script type="text/javascript">
+    
+    //向新页面添加新可见checkbox的按钮，控制checkbox,充当一个目标，通知其他checkbox需要进行检查，用于添加新checkbox的容器
+    var controlCheckbox = document.getElementById('mainCheckbox'),
+        addBtn          = document.getElementById('addNewObserver'),
+        container       = document.getElementById('observersContainer');
+
+    //concrete subject
+    extend(new Subject(), controlCheckbox);
+    controlCheckbox['onclick'] = new Function('controlCheckbox.Notify(controlCheckbox.checked)');
+    addBtn['onclick'] = AddNewObserver;
+
+    //concrete observer
+    function AddNewObserver() {
+        var check = document.createElement('input');
+        check.type = 'checkbox';
+
+        extend(new Observer(), check);
+
+        check.Update = function(value) {
+            this.checked = value;
+        }
+
+        controlCheckbox.AddObserver(check);
+        container.appendChild(check);
+    }
+</script>
+</body>
+</html>

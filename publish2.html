@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    <script type="text/javascript">
+    var subscriber = pubsub.subscribe('newDataAvailable', gridUpdate);
+
+    var getCurrentTime = function() {
+        var date = new Date(),
+               m = date.getMonth() + 1,
+               d = date.getDate(),
+               y = date.getFullYear(),
+               t = date.toLocalTimeString().toLowerCase();
+        return (m + "/" + d + "/" + y + " " +t);
+    };
+
+    function addGridRow(data) {
+        console.log('updated grid component width:' + data);
+    }
+
+    function updateCounter(data) {
+        console.log('data last updated at: ' + getCurrentTime() + " with " + data);
+    }
+    </script>
+</body>
+</html>
