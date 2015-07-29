@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    <form action="" id="flickrSearch">
+        <input type="text" name="tag" id="query">
+        <input type="submit" name="submit" value="submit">
+    </form>
+    <div id="lastQuery"></div>
+    <div id="searchResults"></div>
+    <script id="resultTemplate" type="text/html">
+        <% _.each(items, function(item) { %>
+            <li><p><img src="<%= item.media.m %>"/></p></li>
+        <% });%>
+    </script>
+    <script type="text/javascript">
+    ;(function($) {
+        //预编译模板，并使用闭包缓存
+        var resultTemplate = _.template($('#resultTemplate').html());
+        //订阅搜索tags主题
+        $.subscribe('/search/tags', function(e, tags) {
+            $('#searchResults').html('Searchd for:' + tags + '');
+        });
+        //订阅新搜索结果主题
+        $.subscribe('/search/results', function(e, results) {
+            $('#searchResults').append(resultTemplate(results));
+        });
+        $('#flickrSearch').submit(function(e) {
+            e.preventDefault();
+            var tags = $(this).find('#query').val();
+
+            if(!tags) {
+                return;
+            }
+            $.publish('/search/tags', [$.trim(tags)]);
+        });
+        $.subscribe('/search/tags', function(e, tags) {
+            $.getJSON('http://api.flickr.com/services/feeds/photos_public.gne?jsoncallback=?', {
+                tags: tags,
+                tagmode: 'any',
+                format: 'json'
+            }, function(data) {
+                if(!data.items.length) {
+                    return;
+                }
+                $.publish('/search/resultSet', data.items);
+            })
+        })
+    })(jQuery)
+    </script>
+</body>
+</html>

@@ -5,6 +5,7 @@
     <title>Document</title>
 </head>
 <body>
+    <script type="text/javascript" src="publish.js"></script>
     <script type="text/javascript">
     var subscriber = pubsub.subscribe('newDataAvailable', gridUpdate);
 
@@ -13,8 +14,8 @@
                m = date.getMonth() + 1,
                d = date.getDate(),
                y = date.getFullYear(),
-               t = date.toLocalTimeString().toLowerCase();
-        return (m + "/" + d + "/" + y + " " +t);
+               t = date.toLocaleTimeString().toLowerCase();
+        return (m + "/" + d + "/" + y + " " + t);
     };
 
     function addGridRow(data) {
@@ -24,6 +25,17 @@
     function updateCounter(data) {
         console.log('data last updated at: ' + getCurrentTime() + " with " + data);
     }
+
+    function gridUpdate(topic, data) {
+        if( data !== undefined ) {
+            addGridRow(data);
+            updateCounter(data);
+        }
+    }
+
+    pubsub.publish('newDataAvailable', {
+        summary: 'apple made $5 billion'
+    })
     </script>
 </body>
 </html>

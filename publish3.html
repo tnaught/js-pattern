@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+
+    <script id="userTemplate" type="text/html">
+        <li><%= name %></li>
+    </script>
+    <script id="ratingsTemplate" type="text/html">
+        <li>
+            <strong><%= title %></strong> was rated <%= rating %>/5
+        </li>
+    </script>
+    <div id="container">
+        <div class="sampleForm">
+            <p>
+                <label for="twitter_handle">Twitter handle:</label>
+                <input type="text" id="twitter_handle">
+            </p>
+            <p>
+                <label for="movie_seen">Name a movie you've seen this year:</label>
+                <input type="text" id="movie_seen">
+            </p>
+            <p>
+                <label for="movie_rating">Rate the movie you saw:</label>
+                <select name="" id="movie_rating">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5" selected="">5</option>
+                </select>
+            </p>
+            <p><button id="add">Sumbit rating</button></p>
+        </div>
+        <div class="summaryTable">
+            <div id="users">
+                <h3>Recent users</h3>
+            </div>
+            <div id="ratings">
+                <h3>Recent movies rated</h3>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="bower_components/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="bower_components/jquery-tiny-pubsub/dist/ba-tiny-pubsub.min.js"></script>
+    <script type="text/javascript">
+    ;(function($) {
+        //订阅new users主题，提交评论的时候在用户列表上添加一个用户
+        $.subscribe('/new/user', function(e, data) {
+            var compiledTemplate;
+            if(data) {
+                compiledTemplate = _.template($('#userTemplate').html());
+                $('#users').append(compiledTemplate(data));
+            }
+        });
+        //订阅new rating主题，rating主题由title和rating组成，新rating添加到已有用户的rating列表上
+        $.subscribe('/new/rating', function(e, data) {
+            var compiledTemplate;
+            if(data) {
+                compiledTemplate = _.template($('#ratingsTemplate').html());
+                $('#ratings').append(compiledTemplate(data));
+            }
+        });
+        //添加新用户处理程序
+        $('#add').on('click', function(e) {
+            e.preventDefault();
+
+            var strUser   = $('#twitter_handle').val(),
+                strMovie  = $('#movie_seen').val(),
+                strRating = $('#movie_rating').val();
+
+            //通知程序，新用户有效
+            $.publish('/new/user', {
+                name: strUser
+            });
+            //通知程序新rating评价有效
+            $.publish('/new/rating', {
+                title: strMovie,
+                rating: strRating
+            });
+        });
+    })(jQuery);
+    </script>
+</body>
+</html>
